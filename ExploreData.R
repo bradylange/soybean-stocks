@@ -1,18 +1,15 @@
 rm(list=ls())
-setwd("/home/ubuntu/Documents/Programming/R/Data")
 
 library(ggplot2)
 library(tidyr)
 library(readr)
 library(dplyr)
 library(corrplot)
-
-
-path_novice = '/home/ubuntu/Documents/MUDAC/MUDAC_2019_Fall/Data_Novice/'
-path_undergraduate = '/home/ubuntu/Documents/MUDAC/MUDAC_2019_Fall/Data_Undergraduate/'
+library(here)
+library(readxl)
 
 load_MUDAC_data = function(path, skip) {
-    temp_data = read_csv(path, skip=skip)
+    temp_data = read_excel(path, skip=skip)
 
     if('Date' %in% colnames(temp_data)) {
         temp_data = temp_data %>%
@@ -23,15 +20,15 @@ load_MUDAC_data = function(path, skip) {
     return(temp_data)
 }
 
-data_novice = load_MUDAC_data(paste(path_novice, 'realmonthlycommodityexchangerates_1_.csv', sep=''), skip=11)
-data_march = load_MUDAC_data(paste(path_undergraduate, 'ActiveSoybeanContractsForMarch2020.csv', sep=''), skip=3)
-data_may = load_MUDAC_data(paste(path_undergraduate, 'ActiveSoybeanContractsForMay2020.csv', sep=''), skip=3)
-data_july = load_MUDAC_data(paste(path_undergraduate, 'ActiveSoybeanContractsForJuly2020.csv', sep=''), skip=3)
+novice = load_MUDAC_data(here('data', 'realmonthlycommodityexchangerates_1_.xls'), skip=11)
+march = load_MUDAC_data(here('data', 'active_soybean_contracts_for_march_2020.xlsx'), skip=3)
+may = load_MUDAC_data(here('data', 'active_soybean_contracts_for_may_2020.xlsx'), skip=3)
+july = load_MUDAC_data(here('data', 'active_soybean_contracts_for_july_2020.xlsx'), skip=3)
 
-pairs(data_march)
-cor(data_march)
+pairs(march)
+cor(march)
 
-data_novice
-pairs(data_march)
-pairs(data_may)
-pairs(data_july)
+novice
+pairs(march)
+pairs(may)
+pairs(july)
