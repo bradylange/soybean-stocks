@@ -1,0 +1,20 @@
+===============================================================================
+Meeting Notes:
+===============================================================================
+October 14, 2019:
+- Went through the first two videos on the MUDAC homepage about the data
+- Looked at the evaluation, problems and starting questions in their pdf
+- Looked at the data itself and made some observations:
+    -- In some of the files (eg Contract for May 2020) the first two years of 
+       the data does not vary at all (the open, low, high and closing price are all 
+       the same).  We will need to talk to Romano so that he can ask the Heads of the 
+       Competition about this question.
+    -- When viewing scatterplots on the data, the open, high, low and closing prices 
+       are all EXTREMELY correlated (correlation of about .9+)
+    -- Talked about the variables and their meanings, etc.
+- Further group meetings will happen next Monday (At either 5 or 6, I forget which) 
+  and the following Wednesday at 5. The last group meeting will be during the week 
+  before the competition.
+- Teams will be starting their own individual meetings and the first step for all 
+  teams is probably cleaning all of the datasets (some Excel files have 10+ pages). 
+-------------------------------------------------------------------------------
