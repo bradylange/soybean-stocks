@@ -26,6 +26,7 @@ march = load_MUDAC_data(here('data', 'active_soybean_contracts_for_march_2020.xl
 may = load_MUDAC_data(here('data', 'active_soybean_contracts_for_may_2020.xlsx'), skip=3)
 july = load_MUDAC_data(here('data', 'active_soybean_contracts_for_july_2020.xlsx'), skip=3)
 
+
 # Load other datasets
 
 
@@ -47,6 +48,9 @@ add_prev_day_and_year = function(dataset) {
 march = add_prev_day_and_year(march)
 may = add_prev_day_and_year(may)
 july = add_prev_day_and_year(july)
+
+march = march %>% 
+    filter(year == 2019)
 
 # March Contract Date
 close = march$close
@@ -131,7 +135,7 @@ pairs(~close+close_prev_year+month)
 reg_march = lm(close ~ close_prev_year + month)
 e = residuals(reg_march)
 shapiro.test(e) # Fails
-bptest(reg_march) # Passes
+bptest(reg_march) # Fails
 VIF(reg_march) # Passes
 summary(reg_march) # Passes
 
@@ -140,11 +144,72 @@ pairs(~close+close_prev_year)
 reg_march = lm(close ~ close_prev_year)
 e = residuals(reg_march)
 shapiro.test(e) # Fails
+bptest(reg_march) # Fails
+VIF(reg_march) # Passes
+summary(reg_march) # Passes
+
+# Added year
+pairs(~close+close_prev_year+year)
+reg_march = lm(close ~ close_prev_year+year)
+e = residuals(reg_march)
+shapiro.test(e) # Fails
+bptest(reg_march) # Fails
+VIF(reg_march) # Passes
+summary(reg_march) # Passes
+
+# log(year)
+year_log = log(year)
+pairs(~close+close_prev_year+year_log)
+reg_march = lm(close ~ close_prev_year+year_log)
+e = residuals(reg_march)
+shapiro.test(e) # Fails
+bptest(reg_march) # Fails
+VIF(reg_march) # Passes
+summary(reg_march) # Passes
+
+# Interaction term
+interaction = close_prev_year * year
+pairs(~close+interaction)
+reg_march = lm(close ~ close_prev_year*year)
+e = residuals(reg_march)
+shapiro.test(e) # Fails
 bptest(reg_march) # Passes
 VIF(reg_march) # Passes
 summary(reg_march) # Passes
 
+# 
+pairs(~close + close_lag)
+reg_march = lm(close ~ close_lag)
+e = residuals(reg_march)
+shapiro.test(e) # Passes
+bptest(reg_march) # Fails
+VIF(reg_march) # Passes
+summary(reg_march) # Passes
+
+#
+pairs(~close + close_lag + close_prev_year)
+reg_march = lm(close ~ close_lag + close_prev_year)
+e = residuals(reg_march)
+shapiro.test(e) # Passes
+bptest(reg_march) # Fails
+VIF(reg_march) # Fails
+summary(reg_march) # Passes
+
+new = data.frame(close_lag=865, close_prev_year=851)
+predict(reg_march, new, se.fit=T, interval="confidence", level=.95)
+
+
+
 # Transform close_prev_year
 plot(close_prev_year, close)
-close_transformed = 
-plot(close_prev_year, close_transformed)
+close_transformed = 1/sqrt(log(close))
+# close_prev_year_transformed = log(close_prev_year)
+# close_transformed = (close - min(close))/(max(close)-min(close))
+# close_transformed = asin(sqrt(close_transformed))
+plot(close_prev_year_transformed, close_transformed)
+
+# Transform month
+plot(month, close)
+month_transformed = month^(.33333)
+plot(month_transformed, close_transformed)
+
