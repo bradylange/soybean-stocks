@@ -1,5 +1,5 @@
 # Developer: Brady Lange
-# Date: 11/01/2019
+# Date: 11/03/2019
 # Description: MinneMUDAC Fall 2019 - farmer soybean stocks analysis.
 
 # Set-up workspace
@@ -39,26 +39,17 @@ sbean_cont_all <- rbind(sbean_cont_mar, sbean_cont_may, sbean_cont_july) %>%
     arrange(., Date)
 
 # Separate dates into year, month, and day
+sbean_cont_mar <- sbean_cont_mar %>%
+    separate(., col = Date, into = c("Year", "Month", "Day"), sep = "-")
+sbean_cont_may <- sbean_cont_may %>%
+    separate(., col = Date, into = c("Year", "Month", "Day"), sep = "-")
+sbean_cont_july <- sbean_cont_july %>%
+    separate(., col = Date, into = c("Year", "Month", "Day"), sep = "-")
 sbean_cont_all <- sbean_cont_all %>%
     separate(., col = Date, into = c("Year", "Month", "Day"), sep = "-")
-sbean_cont_all[1:3] <- sbean_cont_all[1:3] %>%
-    factor(.)
 
 # Convert dates to factors
 sbean_cont_all[1:3] <- lapply(sbean_cont_all[1:3], factor)
-
-# Convert March dates into factor
-sbean_cont_mar$Date <- sbean_cont_mar$Date %>%
-    factor(.) 
-# Convert May dates into factor
-sbean_cont_may$Date <- sbean_cont_may$Date %>%
-    factor(.) 
-# Convert July dates into factor
-sbean_cont_july$Date <- sbean_cont_july$Date %>%
-    factor(.) 
-# Convert all dates into factor
-sbean_cont_all$Date <- sbean_cont_all$Date %>%
-    factor(.) 
 
 # Explore data for March
 print(head(sbean_cont_mar))
@@ -78,9 +69,9 @@ print(tail(sbean_cont_all))
 print(names(sbean_cont_all))
 
 # Correlation Heatmap
-plot(sbean_cont_all[1:5])
-cor(sbean_cont_all[2:5])
-cor_mat <- round(cor(sbean_cont_all[1:5]), 2)
+plot(sbean_cont_all[1:7])
+cor(sbean_cont_all[4:7])
+cor_mat <- round(cor(sbean_cont_all[4:7]), 2)
 head(cor_mat)
 library(reshape2)
 melted_cor_mat <- melt(cor_mat)
@@ -108,8 +99,9 @@ ggplot(data = melted_cor_mat, aes(Var2, Var1, fill = value)) +
     coord_fixed()
 
 # Leaps
-df <- as.data.frame(d)
-leaps(x = df[ , 1:15], y = df[ , 16])
+# Convert to data frame
+sbean_cont_all_df <- as.data.frame(sbean_cont_all)
+leaps(x = sbean_cont_all_df[ , 4:7], y = sbean_cont_all_df[ , 7])
 
 # Preprocess Data
 # =============================================================================
@@ -124,10 +116,11 @@ sbean_cont_july %>%
     filter(., Open != Close)
 # Filter out all days that didn't change - eliminate multicollinearity
 sbean_cont_all <- sbean_cont_all %>%
-    filter(., Open != Close)
+    filter(., !Open %in% c(High, Low, Close))
 # Check if there are NA values
 sbean_cont_all %>%
-    filter(is.na(Date) || is.na(Open) || is.na(High) || is.na(Low) || is.na(Close))
+    filter(is.na(Year) || is.na(Month) || is.na(Day) || is.na(Open) 
+           || is.na(High) || is.na(Low) || is.na(Close))
 library(imputeTS)
 # Fill in NA values with mean
 na_mean(sbean_cont_all)
@@ -137,7 +130,7 @@ na_mean(sbean_cont_all)
 # All Dates - March, May, and July
 # -----------------------------------------------------------------------------
 # All dates model
-all_mod <- lm(Close ~ Date, data = sbean_cont_all)
+all_mod <- lm(Close ~ Year + Month + Day, data = sbean_cont_all)
 summary(all_mod)
 # VIF
 VIF(all_mod)
@@ -160,7 +153,7 @@ shapiro.test(sbean_cont_all$Close)
 stepAIC(all_mod, direction = "both")
 
 # Best model
-b_all_mod <- lm( ~ , data = sbean_cont_all)
+b_all_mod <- lm(Close ~ Year + Month, data = sbean_cont_all)
 summary(b_all_mod)
 
 # Transform model
